@@ -66,21 +66,18 @@ public class Board {
         ships.add(ship);
     }
 
-    /**
-     * Apply a move at the given coordinates. Returns Game.MoveResult.
-     */
-    public Game.MoveResult applyMove(int row, int col) {
+    public Move.Result applyMove(int row, int col) {
         checkBounds(row, col);
         Cell cell = grid[row][col];
         if (cell.isHit()) throw new IllegalArgumentException("Cell already targeted");
         cell.markHit();
         if (!cell.hasShip()) {
-            return Game.MoveResult.MISS;
+            return Move.Result.MISS;
         }
         Ship ship = cell.getShip();
         ship.registerHit(row, col);
-        if (ship.isSunk()) return Game.MoveResult.SUNK;
-        return Game.MoveResult.HIT;
+        if (ship.isSunk()) return Move.Result.SUNK;
+        return Move.Result.HIT;
     }
 
     public boolean allShipsSunk() {

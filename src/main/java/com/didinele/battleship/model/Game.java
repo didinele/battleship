@@ -12,7 +12,7 @@ public class Game {
     private GameStatus status;
     private final Instant createdAt;
     private Instant updatedAt;
-    private final List<MoveRecord> moves = new ArrayList<>();
+    private final List<Move> moves = new ArrayList<>();
     private UUID winnerPlayerId;
     private final int boardSize;
 
@@ -48,7 +48,7 @@ public class Game {
         this.updatedAt = Instant.now();
     }
 
-    public synchronized MoveResult fire(UUID firingPlayerId, int row, int col) {
+    public synchronized Move fire(UUID firingPlayerId, int row, int col) {
         if (status != GameStatus.IN_PROGRESS) throw new IllegalStateException("Game not in progress");
         if (!Objects.equals(firingPlayerId, currentTurnPlayerId))
             throw new IllegalArgumentException("Not this player's turn");
@@ -57,9 +57,9 @@ public class Game {
         Board opponentBoard = boards.get(opponentId);
         if (opponentBoard == null) throw new IllegalStateException("Opponent board not found");
 
-        MoveResult result = opponentBoard.applyMove(row, col);
-        MoveRecord record = new MoveRecord(this.id, firingPlayerId, row, col, result, Instant.now());
-        moves.add(record);
+        Move.Result result = opponentBoard.applyMove(row, col);
+        Move move = new Move(this.id, firingPlayerId, row, col, result);
+        moves.add(move);
 
         if (opponentBoard.allShipsSunk()) {
             this.status = GameStatus.FINISHED;
@@ -69,7 +69,7 @@ public class Game {
         }
 
         this.updatedAt = Instant.now();
-        return result;
+        return move;
     }
 
     private void switchTurn() {
@@ -117,7 +117,7 @@ public class Game {
         return updatedAt;
     }
 
-    public List<MoveRecord> getMoves() {
+    public List<Move> getMoves() {
         return Collections.unmodifiableList(moves);
     }
 
@@ -150,14 +150,5 @@ public class Game {
         IN_PROGRESS,
         FINISHED,
         CANCELLED
-    }
-
-    public enum MoveResult {
-        MISS,
-        HIT,
-        SUNK
-    }
-
-    public record MoveRecord(UUID gameId, UUID playerId, int row, int col, MoveResult result, Instant timestamp) {
     }
 }
