@@ -1,7 +1,9 @@
+package com.didinele.battleship;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-public class Battleship {
+public class App {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Battleship");
